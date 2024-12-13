@@ -129,6 +129,16 @@ main {
     font-weight: 400;
 }
 
+main a {
+    text-decoration: none;
+    color: maroon;
+}
+
+main a:hover {
+    text-decoration: underline;
+    color: maroon;
+}
+
 p {
     margin: 0;
     padding: 10px 0;
