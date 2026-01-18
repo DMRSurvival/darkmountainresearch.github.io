@@ -1,83 +1,389 @@
-<html><head><base href="." />
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dark Mountain Research</title>
-<link rel="icon" type="image/png" href="./images/favicon.png" />
-<style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dark Mountain Research</title>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    
+    <style>
+        :root {
+            --bg-body: #121212;
+            --bg-app: #1e1e1e;
+            --bg-panel: #252525;
+            --border-color: #333333;
+            --text-main: #d4d4d4;
+            --text-dim: #888888;
+            --accent: #4a4a4a;
+            --header-height: 50px;
+            --sidebar-width: 260px;
+            --max-width: 1440px;
+        }
 
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    height: 100vh;
-    overflow: hidden;
-}
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+            background: var(--bg-body); 
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            overflow: hidden;
+        }
 
-.background {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    background-image: url('./images/sunrise_mug.png');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-}
+        #app-container {
+            width: 100%;
+            max-width: var(--max-width);
+            background: var(--bg-app);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
 
-.navbar {
-    width: 100%;
-    height: 60px;
-    background-color: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(5px);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 2rem;
-    color: white;
-}
+        /* --- Top Bar --- */
+        #top-bar {
+            height: var(--header-height);
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            flex-shrink: 0;
+            z-index: 200;
+        }
 
-.site-name {
-    font-size: 1.5rem;
-    font-weight: bold;
-    letter-spacing: 1px;
-}
+        .header-left { display: flex; align-items: flex-end; height: 100%; flex: 1; overflow: hidden; }
 
-.nav-links {
-    display: flex;
-    gap: 2rem;
-}
+        .hamburger {
+            background: none; border: none; color: var(--text-main);
+            font-size: 20px; cursor: pointer; margin-right: 15px;
+            padding: 5px; margin-bottom: 8px; /* Align with tabs */
+        }
 
-.nav-links a {
-    color: white;
-    text-decoration: none;
-    font-size: 1rem;
-    transition: color 0.3s ease;
-}
+        .app-title {
+            font-weight: 600; font-size: 1rem; color: #fff;
+            letter-spacing: 0.5px; white-space: nowrap; margin-left: 15px;
+        }
 
-.nav-links a:hover {
-    color: #FFA500;
-}
-</style>
+        /* --- Dynamic Tabs Styling --- */
+        #tabs-container {
+            display: flex; gap: 2px; height: 100%; align-items: flex-end;
+            overflow-x: auto;
+            scrollbar-width: none; /* Hide scrollbar Firefox */
+        }
+        #tabs-container::-webkit-scrollbar { display: none; } /* Hide scrollbar Chrome */
+
+        .tab {
+            padding: 0 15px;
+            height: 34px;
+            background: #2a2a2a;
+            border: 1px solid var(--border-color);
+            border-bottom: none;
+            border-radius: 6px 6px 0 0;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex; align-items: center; gap: 8px;
+            color: var(--text-dim);
+            margin-bottom: -1px;
+            user-select: none;
+            white-space: nowrap;
+            max-width: 200px;
+        }
+        
+        .tab:hover { background: #333; }
+        
+        .tab.active { 
+            background: var(--bg-app); 
+            color: var(--text-main); 
+            height: 35px; 
+            border-bottom: 1px solid var(--bg-app);
+            z-index: 10;
+        }
+        
+        .tab .close-btn {
+            font-size: 14px; width: 16px; height: 16px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; opacity: 0.6; margin-left: 5px;
+        }
+        .tab .close-btn:hover { background: #444; opacity: 1; color: #fff; }
+
+        .new-tab-btn {
+            background: none; border: none; color: var(--text-dim);
+            font-size: 20px; cursor: pointer; padding: 0 10px;
+            height: 34px; display: flex; align-items: center;
+        }
+        .new-tab-btn:hover { color: #fff; background: #333; border-radius: 4px; }
+
+        /* --- Workspace --- */
+        #workspace {
+            flex: 1; display: flex; overflow: hidden; position: relative;
+        }
+
+        /* --- Sidebar --- */
+        #sidebar {
+            width: var(--sidebar-width);
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border-color);
+            display: flex; flex-direction: column;
+            transition: margin-left 0.3s ease; flex-shrink: 0; padding-top: 15px;
+        }
+        #sidebar.closed { margin-left: calc(var(--sidebar-width) * -1); }
+        .nav-icons { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .icon-btn {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: var(--accent); border: none; color: white;
+            cursor: pointer; font-size: 12px; transition: background 0.2s;
+        }
+        .icon-btn:hover { background: #666; }
+        .sidebar-content { flex: 1; overflow-y: auto; padding: 10px 20px; font-size: 0.9rem; }
+        
+        /* Tree Items */
+        details { margin-bottom: 5px; }
+        summary { cursor: pointer; color: var(--text-dim); list-style: none; }
+        summary:hover { color: var(--text-main); }
+        .tree-item { 
+            padding: 4px 0 4px 12px; border-left: 1px solid #333; margin-left: 4px;
+            color: var(--text-dim); cursor: pointer;
+        }
+        .tree-item:hover { color: #fff; text-decoration: underline; }
+
+        /* --- Main Content & Empty State --- */
+        #main-content {
+            flex: 1; overflow-y: auto; padding: 40px 60px;
+            background: var(--bg-app); position: relative;
+        }
+        
+        /* The Empty State Logo Background */
+        .empty-state {
+            display: none; /* Hidden by default */
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            display: flex; align-items: center; justify-content: center;
+            pointer-events: none; opacity: 0.05;
+        }
+        .empty-state svg { width: 300px; height: 300px; fill: white; }
+
+        h1 { margin-bottom: 20px; color: #fff; font-size: 2rem; }
+        p { margin-bottom: 15px; line-height: 1.6; color: #ccc; max-width: 800px; }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            #sidebar {
+                position: absolute; top: 0; bottom: 0; left: 0; z-index: 100;
+                width: 80%; transform: translateX(-100%); margin-left: 0;
+            }
+            #sidebar.open-mobile { transform: translateX(0); }
+            #overlay {
+                display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0,0,0,0.5); z-index: 90;
+            }
+            #overlay.active { display: block; }
+        }
+    </style>
 </head>
 <body>
-    <div class="background">
-        <img alt="Dark Mountain Research" src="./images/sunrise_mug.png" width="2200" height="1602" style="display: none;">
-    </div>
-    
-    <nav class="navbar">
-        <div class="site-name">Dark Mountain Research</div>
-        <div class="nav-links">
-            <a href="walk.html">Walk</a>
-            <a href="talk.html">Talk</a>
-            <a href="live.html">Live</a>
-            <a href="learn.html">Learn</a>
-            <a href="home.html">(Everything Else)</a>
+
+    <div id="app-container">
+        
+        <header id="top-bar">
+            <div class="header-left">
+                <button class="hamburger" onclick="toggleSidebar()">☰</button>
+                
+                <div id="tabs-container">
+                    </div>
+                <button class="new-tab-btn" onclick="addNewTab()">+</button>
+            </div>
+            <div class="app-title">Dark Mountain Research</div>
+        </header>
+
+        <div id="workspace">
+            <aside id="sidebar">
+                <div class="nav-icons">
+                    <button class="icon-btn">1</button>
+                    <button class="icon-btn">2</button>
+                    <button class="icon-btn">3</button>
+                    <button class="icon-btn">4</button>
+                </div>
+                <div class="sidebar-content">
+                    <details open>
+                        <summary>▾ Project Alpha</summary>
+                        <div class="tree-item" onclick="openLink('Mission Statement', '<h1>Mission Statement</h1><p>Our goal is to archive the un-archivable.</p>')">Mission Statement</div>
+                        <div class="tree-item" onclick="openLink('Logistics', '<h1>Logistics</h1><p>Supply chain analysis for Q4.</p>')">Logistics</div>
+                    </details>
+                    <details open style="margin-top:10px;">
+                        <summary>▾ Research</summary>
+                         <div class="tree-item" onclick="openLink('Field Notes', '<h1>Field Notes</h1><p>Day 1: The signal is weak but present.</p>')">Field Notes</div>
+                    </details>
+                </div>
+            </aside>
+            
+            <div id="overlay" onclick="toggleSidebar()"></div>
+
+            <main id="main-content">
+                <div class="empty-state" id="bg-logo">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                </div>
+                <div id="page-content"></div>
+            </main>
         </div>
-    </nav>
+    </div>
+
+    <script>
+        // --- State Management ---
+        let tabs = [];
+        let activeTabId = null;
+
+        const tabsContainer = document.getElementById('tabs-container');
+        const pageContent = document.getElementById('page-content');
+        const bgLogo = document.getElementById('bg-logo');
+
+        // --- Init ---
+        document.addEventListener('DOMContentLoaded', () => {
+            loadState();
+            renderTabs();
+            
+            // Initialize SortableJS for Drag and Drop
+            new Sortable(tabsContainer, {
+                animation: 150,
+                ghostClass: 'sortable-ghost',
+                onEnd: function (evt) {
+                    // Update array order after drag
+                    const itemEl = evt.item; // The moved element
+                    const newIndex = evt.newIndex;
+                    const oldIndex = evt.oldIndex;
+                    
+                    // Move item in array
+                    const movedItem = tabs.splice(oldIndex, 1)[0];
+                    tabs.splice(newIndex, 0, movedItem);
+                    saveState();
+                }
+            });
+        });
+
+        // --- Core Logic ---
+
+        function addNewTab() {
+            const id = Date.now().toString();
+            const newTab = {
+                id: id,
+                title: 'New Tab',
+                content: '<h1>New Tab</h1><p>Select a file from the sidebar to begin.</p>'
+            };
+            tabs.push(newTab);
+            activateTab(id);
+        }
+
+        // Called when clicking sidebar items
+        function openLink(title, htmlContent) {
+            // Optional: Check if already open? 
+            // For now, we behave like a browser and open a fresh tab
+            const id = Date.now().toString();
+            tabs.push({
+                id: id,
+                title: title,
+                content: htmlContent
+            });
+            activateTab(id);
+            // On mobile, close sidebar after click
+            if(window.innerWidth <= 768) toggleSidebar();
+        }
+
+        function closeTab(e, id) {
+            e.stopPropagation(); // Prevent activating the tab while closing
+            
+            // Remove from array
+            const index = tabs.findIndex(t => t.id === id);
+            tabs = tabs.filter(t => t.id !== id);
+            
+            // Determine next active tab if we closed the active one
+            if (activeTabId === id) {
+                if (tabs.length > 0) {
+                    // Go to the tab to the right, or the last one if we closed the end
+                    const newIndex = index < tabs.length ? index : tabs.length - 1;
+                    activateTab(tabs[newIndex].id);
+                } else {
+                    activeTabId = null;
+                    renderTabs(); // Will trigger empty state
+                }
+            } else {
+                saveState();
+                renderTabs();
+            }
+        }
+
+        function activateTab(id) {
+            activeTabId = id;
+            saveState();
+            renderTabs();
+        }
+
+        function renderTabs() {
+            tabsContainer.innerHTML = '';
+            
+            // 1. Handle Empty State
+            if (tabs.length === 0) {
+                bgLogo.style.display = 'flex';
+                pageContent.innerHTML = '';
+                return;
+            } else {
+                bgLogo.style.display = 'none';
+            }
+
+            // 2. Render Tabs
+            tabs.forEach(tab => {
+                const isActive = tab.id === activeTabId;
+                
+                const tabEl = document.createElement('div');
+                tabEl.className = `tab ${isActive ? 'active' : ''}`;
+                tabEl.draggable = true;
+                tabEl.onclick = () => activateTab(tab.id);
+                
+                tabEl.innerHTML = `
+                    <span>${tab.title}</span>
+                    <span class="close-btn" onclick="closeTab(event, '${tab.id}')">×</span>
+                `;
+                
+                tabsContainer.appendChild(tabEl);
+
+                // 3. Render Content if active
+                if (isActive) {
+                    pageContent.innerHTML = tab.content;
+                }
+            });
+        }
+
+        // --- Persistence ---
+        function saveState() {
+            localStorage.setItem('dmr_tabs', JSON.stringify(tabs));
+            localStorage.setItem('dmr_active_id', activeTabId);
+        }
+
+        function loadState() {
+            const storedTabs = localStorage.getItem('dmr_tabs');
+            const storedActive = localStorage.getItem('dmr_active_id');
+            
+            if (storedTabs) {
+                tabs = JSON.parse(storedTabs);
+                activeTabId = storedActive;
+            } else {
+                // Default Start
+                addNewTab();
+            }
+        }
+
+        // --- Sidebar Toggle (Mobile) ---
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            if (window.innerWidth > 768) {
+                sidebar.classList.toggle('closed');
+            } else {
+                sidebar.classList.toggle('open-mobile');
+                overlay.classList.toggle('active');
+            }
+        }
+    </script>
 </body>
 </html>
