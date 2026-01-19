@@ -4,20 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dark Mountain Research</title>
+    <link rel="icon" type="image/png" href="images/favicon.png">
+    
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     
     <style>
         :root {
+            /* Theme Variables */
             --bg-body: #121212;
             --bg-app: #1e1e1e;
             --bg-panel: #252525;
             --border-color: #333333;
             --text-main: #d4d4d4;
             --text-dim: #888888;
-            --accent: #4a4a4a;
+            --accent: #3a3a3a;
+            --accent-hover: #505050;
             --header-height: 50px;
-            --sidebar-width: 260px;
+            --sidebar-width: 280px;
             --max-width: 1440px;
+            --font-size-base: 16px;
+        }
+
+        /* Light Mode Override Class */
+        body.light-mode {
+            --bg-body: #e0e0e0;
+            --bg-app: #f5f5f5;
+            --bg-panel: #e8e8e8;
+            --border-color: #ccc;
+            --text-main: #222;
+            --text-dim: #666;
+            --accent: #d0d0d0;
+            --accent-hover: #bfbfbf;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -27,17 +44,14 @@
             background: var(--bg-body); 
             color: var(--text-main);
             height: 100vh;
-            display: flex;
-            justify-content: center;
-            overflow: hidden;
+            display: flex; justify-content: center; overflow: hidden;
+            font-size: var(--font-size-base);
         }
 
         #app-container {
-            width: 100%;
-            max-width: var(--max-width);
+            width: 100%; max-width: var(--max-width);
             background: var(--bg-app);
-            display: flex;
-            flex-direction: column;
+            display: flex; flex-direction: column;
             position: relative;
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
@@ -47,80 +61,71 @@
             height: var(--header-height);
             background: var(--bg-panel);
             border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 15px;
-            flex-shrink: 0;
-            z-index: 200;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 15px; flex-shrink: 0; z-index: 200;
         }
 
-        .header-left { display: flex; align-items: flex-end; height: 100%; flex: 1; overflow: hidden; }
+        .header-left { 
+            display: flex; align-items: center; /* Centered Vertically */
+            height: 100%; flex: 1; overflow: hidden; 
+        }
 
         .hamburger {
             background: none; border: none; color: var(--text-main);
-            font-size: 20px; cursor: pointer; margin-right: 15px;
-            padding: 5px; margin-bottom: 8px; /* Align with tabs */
+            cursor: pointer; margin-right: 15px;
+            display: flex; align-items: center; justify-content: center;
+            padding: 5px;
+            transition: color 0.2s;
         }
+        .hamburger:hover { color: #fff; }
+        .hamburger svg { width: 32px; height: 32px; fill: currentColor; } /* Bigger Icon */
 
         .app-title {
-            font-weight: 600; font-size: 1rem; color: #fff;
-            letter-spacing: 0.5px; white-space: nowrap; margin-left: 15px;
+            font-weight: 600; font-size: 1rem; margin-left: 15px;
+            white-space: nowrap; color: var(--text-main);
         }
 
-        /* --- Dynamic Tabs Styling --- */
+        /* --- Tabs --- */
         #tabs-container {
             display: flex; gap: 2px; height: 100%; align-items: flex-end;
-            overflow-x: auto;
-            scrollbar-width: none; /* Hide scrollbar Firefox */
+            overflow-x: auto; scrollbar-width: none;
+            padding-bottom: 0; /* Align with bottom border */
+            margin-left: 10px;
         }
-        #tabs-container::-webkit-scrollbar { display: none; } /* Hide scrollbar Chrome */
+        #tabs-container::-webkit-scrollbar { display: none; }
 
         .tab {
-            padding: 0 15px;
-            height: 34px;
-            background: #2a2a2a;
+            padding: 0 15px; height: 34px;
+            background: var(--bg-panel);
             border: 1px solid var(--border-color);
-            border-bottom: none;
-            border-radius: 6px 6px 0 0;
-            font-size: 13px;
-            cursor: pointer;
+            border-bottom: none; border-radius: 6px 6px 0 0;
+            font-size: 0.85rem; cursor: pointer;
             display: flex; align-items: center; gap: 8px;
-            color: var(--text-dim);
-            margin-bottom: -1px;
-            user-select: none;
-            white-space: nowrap;
-            max-width: 200px;
+            color: var(--text-dim); margin-bottom: -1px;
+            user-select: none; white-space: nowrap; max-width: 200px;
         }
-        
-        .tab:hover { background: #333; }
-        
+        .tab:hover { background: var(--accent); }
         .tab.active { 
-            background: var(--bg-app); 
-            color: var(--text-main); 
-            height: 35px; 
-            border-bottom: 1px solid var(--bg-app);
-            z-index: 10;
+            background: var(--bg-app); color: var(--text-main); height: 35px; 
+            border-bottom: 1px solid var(--bg-app); z-index: 10;
         }
-        
         .tab .close-btn {
             font-size: 14px; width: 16px; height: 16px;
             display: flex; align-items: center; justify-content: center;
-            border-radius: 50%; opacity: 0.6; margin-left: 5px;
+            border-radius: 50%; opacity: 0.6;
         }
-        .tab .close-btn:hover { background: #444; opacity: 1; color: #fff; }
+        .tab .close-btn:hover { background: var(--accent-hover); opacity: 1; }
 
         .new-tab-btn {
             background: none; border: none; color: var(--text-dim);
-            font-size: 20px; cursor: pointer; padding: 0 10px;
+            font-size: 24px; cursor: pointer; padding: 0 10px;
             height: 34px; display: flex; align-items: center;
+            margin-bottom: -2px; /* Visual alignment with tabs */
         }
-        .new-tab-btn:hover { color: #fff; background: #333; border-radius: 4px; }
+        .new-tab-btn:hover { color: var(--text-main); }
 
         /* --- Workspace --- */
-        #workspace {
-            flex: 1; display: flex; overflow: hidden; position: relative;
-        }
+        #workspace { flex: 1; display: flex; overflow: hidden; position: relative; }
 
         /* --- Sidebar --- */
         #sidebar {
@@ -131,48 +136,93 @@
             transition: margin-left 0.3s ease; flex-shrink: 0; padding-top: 15px;
         }
         #sidebar.closed { margin-left: calc(var(--sidebar-width) * -1); }
-        .nav-icons { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
-        .icon-btn {
-            width: 32px; height: 32px; border-radius: 50%;
-            background: var(--accent); border: none; color: white;
-            cursor: pointer; font-size: 12px; transition: background 0.2s;
+
+        /* Sidebar Icons */
+        .nav-icons { 
+            display: flex; justify-content: center; gap: 12px; 
+            margin-bottom: 20px; padding: 0 10px; flex-shrink: 0;
         }
-        .icon-btn:hover { background: #666; }
-        .sidebar-content { flex: 1; overflow-y: auto; padding: 10px 20px; font-size: 0.9rem; }
-        
+        .icon-btn {
+            width: 48px; height: 48px;
+            border-radius: 8px;
+            background: var(--accent);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+        .icon-btn svg { width: 24px; height: 24px; fill: currentColor; }
+        .icon-btn:hover, .icon-btn.active-tool { 
+            background: var(--accent-hover); 
+            border-color: var(--text-dim);
+        }
+
+        /* Sidebar Panels */
+        .sidebar-panel { display: none; flex: 1; overflow-y: auto; padding: 10px 20px; }
+        .sidebar-panel.active { display: block; }
+
         /* Tree Items */
         details { margin-bottom: 5px; }
-        summary { cursor: pointer; color: var(--text-dim); list-style: none; }
+        summary { cursor: pointer; color: var(--text-dim); list-style: none; font-weight: 500; }
         summary:hover { color: var(--text-main); }
         .tree-item { 
-            padding: 4px 0 4px 12px; border-left: 1px solid #333; margin-left: 4px;
-            color: var(--text-dim); cursor: pointer;
+            padding: 4px 0 4px 12px; border-left: 1px solid var(--border-color); margin-left: 5px;
+            color: var(--text-dim); cursor: pointer; font-size: 0.9rem;
         }
-        .tree-item:hover { color: #fff; text-decoration: underline; }
+        .tree-item:hover { color: var(--text-main); text-decoration: underline; }
 
-        /* --- Main Content & Empty State --- */
+        /* Sidebar Footer */
+        .sidebar-footer {
+            margin-top: auto; /* Pushes footer to bottom */
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+        .sidebar-footer a { color: var(--text-dim); text-decoration: none; transition: color 0.2s; }
+        .sidebar-footer a:hover { color: var(--text-main); text-decoration: underline; }
+        .sidebar-footer p { margin-top: 10px; font-size: 0.75rem; opacity: 0.7; }
+
+        /* ToC Links */
+        .toc-link { 
+            display: block; padding: 5px 0; color: var(--text-dim); 
+            text-decoration: none; font-size: 0.9rem; cursor: pointer;
+        }
+        .toc-link:hover { color: var(--text-main); }
+        .toc-h1 { font-weight: bold; }
+        .toc-h2 { padding-left: 15px; }
+
+        /* Settings Panel */
+        .setting-row { margin-bottom: 20px; }
+        .setting-row label { display: block; margin-bottom: 8px; color: var(--text-main); }
+        .btn-toggle {
+            padding: 8px 12px; background: var(--accent); border: 1px solid var(--border-color);
+            color: var(--text-main); cursor: pointer; border-radius: 4px; width: 100%;
+        }
+        .btn-toggle:hover { background: var(--accent-hover); }
+
+        /* --- Main Content --- */
         #main-content {
             flex: 1; overflow-y: auto; padding: 40px 60px;
             background: var(--bg-app); position: relative;
         }
         
-        /* The Empty State Logo Background */
+        /* Empty State Logo */
         .empty-state {
-            display: none; /* Hidden by default */
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             display: flex; align-items: center; justify-content: center;
-            pointer-events: none; opacity: 0.05;
+            pointer-events: none; opacity: 0.1; /* Adjust opacity here */
         }
-        .empty-state svg { width: 300px; height: 300px; fill: white; }
-
-        h1 { margin-bottom: 20px; color: #fff; font-size: 2rem; }
-        p { margin-bottom: 15px; line-height: 1.6; color: #ccc; max-width: 800px; }
+        .empty-state img { max-width: 400px; max-height: 400px; }
 
         /* Mobile */
         @media (max-width: 768px) {
             #sidebar {
                 position: absolute; top: 0; bottom: 0; left: 0; z-index: 100;
-                width: 80%; transform: translateX(-100%); margin-left: 0;
+                width: 85%; transform: translateX(-100%); margin-left: 0;
+                box-shadow: 10px 0 20px rgba(0,0,0,0.5);
             }
             #sidebar.open-mobile { transform: translateX(0); }
             #overlay {
@@ -180,6 +230,7 @@
                 background: rgba(0,0,0,0.5); z-index: 90;
             }
             #overlay.active { display: block; }
+            #main-content { padding: 20px; }
         }
     </style>
 </head>
@@ -189,11 +240,11 @@
         
         <header id="top-bar">
             <div class="header-left">
-                <button class="hamburger" onclick="toggleSidebar()">☰</button>
-                
-                <div id="tabs-container">
-                    </div>
-                <button class="new-tab-btn" onclick="addNewTab()">+</button>
+                <button class="hamburger" onclick="toggleSidebar()">
+                    <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+                </button>
+                <div id="tabs-container"></div>
+                <button class="new-tab-btn" onclick="openPage('New Tab', null)">+</button>
             </div>
             <div class="app-title">Dark Mountain Research</div>
         </header>
@@ -201,29 +252,72 @@
         <div id="workspace">
             <aside id="sidebar">
                 <div class="nav-icons">
-                    <button class="icon-btn">1</button>
-                    <button class="icon-btn">2</button>
-                    <button class="icon-btn">3</button>
-                    <button class="icon-btn">4</button>
+                    <button class="icon-btn active-tool" onclick="switchPanel('nav')" title="Site Navigation">
+                        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+                    </button>
+                    <button class="icon-btn" onclick="switchPanel('toc')" title="Page Contents">
+                        <svg viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
+                    </button>
+                    <button class="icon-btn" onclick="openPage('Home', 'pages/home.html')" title="Go Home">
+                        <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                    </button>
+                    <button class="icon-btn" onclick="switchPanel('settings')" title="Settings">
+                        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.04.24.24.41.48.41h3.84c.24 0 .43-.17.47-.41l.36-2.54c.59-.24 1.13-.57 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                    </button>
                 </div>
-                <div class="sidebar-content">
+
+                <div id="panel-nav" class="sidebar-panel active">
                     <details open>
-                        <summary>▾ Project Alpha</summary>
-                        <div class="tree-item" onclick="openLink('Mission Statement', '<h1>Mission Statement</h1><p>Our goal is to archive the un-archivable.</p>')">Mission Statement</div>
-                        <div class="tree-item" onclick="openLink('Logistics', '<h1>Logistics</h1><p>Supply chain analysis for Q4.</p>')">Logistics</div>
+                        <summary>▾ General</summary>
+                        <div class="tree-item" onclick="openPage('Mission', 'pages/mission.html')">Mission Statement</div>
+                        <div class="tree-item" onclick="openPage('Contact', 'pages/contact.html')">Contact DMR</div>
                     </details>
                     <details open style="margin-top:10px;">
-                        <summary>▾ Research</summary>
-                         <div class="tree-item" onclick="openLink('Field Notes', '<h1>Field Notes</h1><p>Day 1: The signal is weak but present.</p>')">Field Notes</div>
+                        <summary>▾ Research Logs</summary>
+                        <div class="tree-item" onclick="openPage('Log 001', 'pages/log001.html')">Log Entry 001</div>
+                        <div class="tree-item" onclick="openPage('Log 002', 'pages/log002.html')">Log Entry 002</div>
                     </details>
                 </div>
+
+                <div id="panel-toc" class="sidebar-panel">
+                    <p style="font-size:0.8rem; color:var(--text-dim); margin-bottom:10px;">CONTENTS OF CURRENT PAGE</p>
+                    <div id="toc-list"></div>
+                </div>
+
+                <div id="panel-settings" class="sidebar-panel">
+                    <div class="setting-row">
+                        <label>Display Mode</label>
+                        <button class="btn-toggle" onclick="toggleTheme()">Toggle Light/Dark</button>
+                    </div>
+                    <div class="setting-row">
+                        <label>Font Size</label>
+                        <button class="btn-toggle" onclick="adjustFont(1)">Increase (+)</button>
+                        <div style="height:5px;"></div>
+                        <button class="btn-toggle" onclick="adjustFont(-1)">Decrease (-)</button>
+                    </div>
+                </div>
+
+                <footer class="sidebar-footer">
+                    <a href="https://www.youtube.com/@DMRSurvival" target="_blank">YouTube</a> | 
+                    <a href="https://www.facebook.com/dmrsurvival" target="_blank">FaceBook</a> | 
+                    <a href="https://github.com/DMRSurvival" target="_blank">GitHub</a><br />
+                    
+                    <div style="margin: 8px 0;">
+                        <a href="#" onclick="openPage('Contact', 'pages/contact.html'); return false;">Contact</a> | 
+                        <a href="#" onclick="openPage('About', 'pages/about_dmr.html'); return false;">About</a> | 
+                        <a href="#" onclick="openPage('Legal', 'pages/legal.html'); return false;">Legal</a>
+                    </div>
+                    
+                    <p>Copyright 2026<br>Dark Mountain Research</p>
+                </footer>
+
             </aside>
             
             <div id="overlay" onclick="toggleSidebar()"></div>
 
             <main id="main-content">
                 <div class="empty-state" id="bg-logo">
-                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                     <img src="images/dmr_logo.png" alt="DMR Logo">
                 </div>
                 <div id="page-content"></div>
             </main>
@@ -231,81 +325,80 @@
     </div>
 
     <script>
-        // --- State Management ---
         let tabs = [];
         let activeTabId = null;
+        let fontSize = 16;
 
         const tabsContainer = document.getElementById('tabs-container');
         const pageContent = document.getElementById('page-content');
         const bgLogo = document.getElementById('bg-logo');
+        const tocList = document.getElementById('toc-list');
 
-        // --- Init ---
         document.addEventListener('DOMContentLoaded', () => {
-            loadState();
-            renderTabs();
+            const storedTabs = localStorage.getItem('dmr_tabs');
+            const storedActive = localStorage.getItem('dmr_active_id');
+            const storedTheme = localStorage.getItem('dmr_theme');
             
-            // Initialize SortableJS for Drag and Drop
+            if(storedTheme === 'light') document.body.classList.add('light-mode');
+
+            if (storedTabs) {
+                tabs = JSON.parse(storedTabs);
+                activeTabId = storedActive;
+                renderTabs();
+            } else {
+                openPage('Home', 'pages/home.html'); 
+            }
+
+            // Init Drag & Drop
             new Sortable(tabsContainer, {
                 animation: 150,
-                ghostClass: 'sortable-ghost',
                 onEnd: function (evt) {
-                    // Update array order after drag
-                    const itemEl = evt.item; // The moved element
-                    const newIndex = evt.newIndex;
-                    const oldIndex = evt.oldIndex;
-                    
-                    // Move item in array
-                    const movedItem = tabs.splice(oldIndex, 1)[0];
-                    tabs.splice(newIndex, 0, movedItem);
+                    const movedItem = tabs.splice(evt.oldIndex, 1)[0];
+                    tabs.splice(evt.newIndex, 0, movedItem);
                     saveState();
                 }
             });
         });
 
-        // --- Core Logic ---
-
-        function addNewTab() {
+        // --- Core Functions ---
+        
+        async function openPage(title, url) {
             const id = Date.now().toString();
-            const newTab = {
-                id: id,
-                title: 'New Tab',
-                content: '<h1>New Tab</h1><p>Select a file from the sidebar to begin.</p>'
-            };
-            tabs.push(newTab);
-            activateTab(id);
-        }
+            let content = '';
 
-        // Called when clicking sidebar items
-        function openLink(title, htmlContent) {
-            // Optional: Check if already open? 
-            // For now, we behave like a browser and open a fresh tab
-            const id = Date.now().toString();
-            tabs.push({
-                id: id,
-                title: title,
-                content: htmlContent
-            });
+            if (url) {
+                try {
+                    const response = await fetch(url);
+                    if (response.ok) {
+                        content = await response.text();
+                    } else {
+                        content = `<h1>Error 404</h1><p>File not found: ${url}</p>`;
+                    }
+                } catch (error) {
+                    console.error(error);
+                    content = `<h1>Connection Error</h1><p>Could not load content. Ensure you are running this on a web server.</p>`;
+                }
+            } else {
+                content = `<h1>New Tab</h1><p>Select a file from the navigation tree.</p>`;
+            }
+
+            tabs.push({ id, title, content, url });
             activateTab(id);
-            // On mobile, close sidebar after click
             if(window.innerWidth <= 768) toggleSidebar();
         }
 
         function closeTab(e, id) {
-            e.stopPropagation(); // Prevent activating the tab while closing
-            
-            // Remove from array
+            e.stopPropagation();
             const index = tabs.findIndex(t => t.id === id);
             tabs = tabs.filter(t => t.id !== id);
             
-            // Determine next active tab if we closed the active one
             if (activeTabId === id) {
                 if (tabs.length > 0) {
-                    // Go to the tab to the right, or the last one if we closed the end
                     const newIndex = index < tabs.length ? index : tabs.length - 1;
                     activateTab(tabs[newIndex].id);
                 } else {
                     activeTabId = null;
-                    renderTabs(); // Will trigger empty state
+                    renderTabs();
                 }
             } else {
                 saveState();
@@ -317,63 +410,85 @@
             activeTabId = id;
             saveState();
             renderTabs();
+            generateToC();
         }
 
         function renderTabs() {
             tabsContainer.innerHTML = '';
             
-            // 1. Handle Empty State
             if (tabs.length === 0) {
                 bgLogo.style.display = 'flex';
                 pageContent.innerHTML = '';
+                tocList.innerHTML = '<p style="font-size:0.8rem; color:var(--text-dim)">No page open.</p>';
                 return;
             } else {
                 bgLogo.style.display = 'none';
             }
 
-            // 2. Render Tabs
             tabs.forEach(tab => {
                 const isActive = tab.id === activeTabId;
-                
                 const tabEl = document.createElement('div');
                 tabEl.className = `tab ${isActive ? 'active' : ''}`;
-                tabEl.draggable = true;
                 tabEl.onclick = () => activateTab(tab.id);
-                
-                tabEl.innerHTML = `
-                    <span>${tab.title}</span>
-                    <span class="close-btn" onclick="closeTab(event, '${tab.id}')">×</span>
-                `;
-                
+                tabEl.innerHTML = `<span>${tab.title}</span><span class="close-btn" onclick="closeTab(event, '${tab.id}')">×</span>`;
                 tabsContainer.appendChild(tabEl);
 
-                // 3. Render Content if active
                 if (isActive) {
                     pageContent.innerHTML = tab.content;
                 }
             });
         }
 
-        // --- Persistence ---
+        // --- Panel Logic ---
+
+        function switchPanel(panelName) {
+            document.querySelectorAll('.sidebar-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.icon-btn').forEach(b => b.classList.remove('active-tool'));
+            
+            if(panelName === 'nav') {
+                document.getElementById('panel-nav').classList.add('active');
+                document.querySelector('[title="Site Navigation"]').classList.add('active-tool');
+            } else if (panelName === 'toc') {
+                document.getElementById('panel-toc').classList.add('active');
+                document.querySelector('[title="Page Contents"]').classList.add('active-tool');
+                generateToC();
+            } else if (panelName === 'settings') {
+                document.getElementById('panel-settings').classList.add('active');
+                document.querySelector('[title="Settings"]').classList.add('active-tool');
+            }
+        }
+
+        function generateToC() {
+            const headers = pageContent.querySelectorAll('h1, h2');
+            tocList.innerHTML = '';
+            if (headers.length === 0) {
+                tocList.innerHTML = '<div style="color:var(--text-dim); font-style:italic; padding:10px;">No headers found on this page.</div>';
+                return;
+            }
+            headers.forEach(header => {
+                const link = document.createElement('a');
+                link.textContent = header.textContent;
+                link.className = header.tagName === 'H1' ? 'toc-link toc-h1' : 'toc-link toc-h2';
+                link.onclick = () => header.scrollIntoView({behavior: 'smooth'});
+                tocList.appendChild(link);
+            });
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            localStorage.setItem('dmr_theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+        }
+
+        function adjustFont(change) {
+            fontSize += change;
+            document.body.style.setProperty('--font-size-base', fontSize + 'px');
+        }
+
         function saveState() {
             localStorage.setItem('dmr_tabs', JSON.stringify(tabs));
             localStorage.setItem('dmr_active_id', activeTabId);
         }
 
-        function loadState() {
-            const storedTabs = localStorage.getItem('dmr_tabs');
-            const storedActive = localStorage.getItem('dmr_active_id');
-            
-            if (storedTabs) {
-                tabs = JSON.parse(storedTabs);
-                activeTabId = storedActive;
-            } else {
-                // Default Start
-                addNewTab();
-            }
-        }
-
-        // --- Sidebar Toggle (Mobile) ---
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('overlay');
