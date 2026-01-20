@@ -25,7 +25,6 @@
             --font-size-base: 16px;
         }
 
-        /* Light Mode Override Class */
         body.light-mode {
             --bg-body: #e0e0e0;
             --bg-app: #f5f5f5;
@@ -56,7 +55,7 @@
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
 
-        /* --- Top Bar --- */
+        /* --- Header --- */
         #top-bar {
             height: var(--header-height);
             background: var(--bg-panel);
@@ -66,7 +65,7 @@
         }
 
         .header-left { 
-            display: flex; align-items: center; /* Centered Vertically */
+            display: flex; align-items: center; 
             height: 100%; flex: 1; overflow: hidden; 
         }
 
@@ -75,10 +74,9 @@
             cursor: pointer; margin-right: 15px;
             display: flex; align-items: center; justify-content: center;
             padding: 5px;
-            transition: color 0.2s;
         }
         .hamburger:hover { color: #fff; }
-        .hamburger svg { width: 32px; height: 32px; fill: currentColor; } /* Bigger Icon */
+        .hamburger svg { width: 32px; height: 32px; fill: currentColor; }
 
         .app-title {
             font-weight: 600; font-size: 1rem; margin-left: 15px;
@@ -89,8 +87,7 @@
         #tabs-container {
             display: flex; gap: 2px; height: 100%; align-items: flex-end;
             overflow-x: auto; scrollbar-width: none;
-            padding-bottom: 0; /* Align with bottom border */
-            margin-left: 10px;
+            padding-bottom: 0; margin-left: 10px;
         }
         #tabs-container::-webkit-scrollbar { display: none; }
 
@@ -115,14 +112,6 @@
             border-radius: 50%; opacity: 0.6;
         }
         .tab .close-btn:hover { background: var(--accent-hover); opacity: 1; }
-
-        .new-tab-btn {
-            background: none; border: none; color: var(--text-dim);
-            font-size: 24px; cursor: pointer; padding: 0 10px;
-            height: 34px; display: flex; align-items: center;
-            margin-bottom: -2px; /* Visual alignment with tabs */
-        }
-        .new-tab-btn:hover { color: var(--text-main); }
 
         /* --- Workspace --- */
         #workspace { flex: 1; display: flex; overflow: hidden; position: relative; }
@@ -171,19 +160,16 @@
         }
         .tree-item:hover { color: var(--text-main); text-decoration: underline; }
 
-        /* Sidebar Footer */
+        /* Sidebar Footer (Tightened Spacing) */
         .sidebar-footer {
-            margin-top: auto; /* Pushes footer to bottom */
-            padding: 20px;
+            margin-top: auto; padding: 15px 20px;
             border-top: 1px solid var(--border-color);
-            text-align: center;
-            font-size: 0.8rem;
-            color: var(--text-dim);
-            line-height: 1.6;
+            text-align: center; font-size: 0.8rem;
+            color: var(--text-dim); line-height: 1.4; /* Tighter lines */
         }
         .sidebar-footer a { color: var(--text-dim); text-decoration: none; transition: color 0.2s; }
         .sidebar-footer a:hover { color: var(--text-main); text-decoration: underline; }
-        .sidebar-footer p { margin-top: 10px; font-size: 0.75rem; opacity: 0.7; }
+        .sidebar-footer p { margin-top: 5px; font-size: 0.75rem; opacity: 0.7; margin-bottom: 0; }
 
         /* ToC Links */
         .toc-link { 
@@ -194,26 +180,60 @@
         .toc-h1 { font-weight: bold; }
         .toc-h2 { padding-left: 15px; }
 
-        /* Settings Panel */
+        /* Settings & Search Panel */
         .setting-row { margin-bottom: 20px; }
-        .setting-row label { display: block; margin-bottom: 8px; color: var(--text-main); }
+        .setting-row label { display: block; margin-bottom: 8px; color: var(--text-main); font-weight: 500;}
         .btn-toggle {
             padding: 8px 12px; background: var(--accent); border: 1px solid var(--border-color);
             color: var(--text-main); cursor: pointer; border-radius: 4px; width: 100%;
         }
         .btn-toggle:hover { background: var(--accent-hover); }
 
-        /* --- Main Content --- */
+        #search-input {
+            width: 100%; padding: 8px; border-radius: 4px; border: 1px solid var(--border-color);
+            background: #111; color: var(--text-main); margin-bottom: 8px;
+        }
+
+        /* --- Main Content (Content Typography) --- */
         #main-content {
             flex: 1; overflow-y: auto; padding: 40px 60px;
             background: var(--bg-app); position: relative;
         }
         
-        /* Empty State Logo */
+        /* Spacing adjustments for readable content */
+        #page-content { line-height: 1.7; }
+        
+        /* Section Spacing (from your NotebookLM HTML) */
+        #page-content section { margin-bottom: 40px; }
+
+        /* Header Sizes & Spacing */
+        #page-content h1 { 
+            font-size: 1.7rem; /* Reduced from 2.0 */
+            margin-top: 0; margin-bottom: 20px; 
+            color: #fff; line-height: 1.2;
+        }
+        #page-content h2 { 
+            font-size: 1.4rem; /* Reduced from 1.5 */
+            margin-top: 30px; margin-bottom: 15px; 
+            color: #eee; border-bottom: 1px solid #333; padding-bottom: 5px;
+        }
+
+        /* List & Paragraph Spacing */
+        #page-content p { margin-bottom: 15px; }
+        #page-content ul, #page-content ol { margin-bottom: 20px; padding-left: 25px; }
+        #page-content li { margin-bottom: 10px; /* Air between list items */ }
+        
+        /* Search Result Styling */
+        .search-result { margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .search-result a { color: #8ab4f8; text-decoration: none; font-size: 1.1rem; font-weight: bold; }
+        .search-result a:hover { text-decoration: underline; }
+        .search-snippet { color: #aaa; font-size: 0.9rem; margin-top: 5px; }
+
+        /* Empty State */
         .empty-state {
             display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             display: flex; align-items: center; justify-content: center;
-            pointer-events: none; opacity: 0.1; /* Adjust opacity here */
+            pointer-events: none; opacity: 0.1;
         }
         .empty-state img { max-width: 400px; max-height: 400px; }
 
@@ -244,8 +264,7 @@
                     <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
                 </button>
                 <div id="tabs-container"></div>
-                <button class="new-tab-btn" onclick="openPage('New Tab', null)">+</button>
-            </div>
+                </div>
             <div class="app-title">Dark Mountain Research</div>
         </header>
 
@@ -261,7 +280,7 @@
                     <button class="icon-btn" onclick="openPage('Home', 'pages/home.html')" title="Go Home">
                         <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
                     </button>
-                    <button class="icon-btn" onclick="switchPanel('settings')" title="Settings">
+                    <button class="icon-btn" onclick="switchPanel('settings')" title="Settings & Search">
                         <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.04.24.24.41.48.41h3.84c.24 0 .43-.17.47-.41l.36-2.54c.59-.24 1.13-.57 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
                     </button>
                 </div>
@@ -285,6 +304,15 @@
                 </div>
 
                 <div id="panel-settings" class="sidebar-panel">
+                    
+                    <div class="setting-row">
+                        <label>Site Search</label>
+                        <input type="text" id="search-input" placeholder="Search keywords...">
+                        <button class="btn-toggle" onclick="performSearch()">Search</button>
+                    </div>
+
+                    <hr style="border:0; border-top:1px solid var(--border-color); margin: 20px 0;">
+
                     <div class="setting-row">
                         <label>Display Mode</label>
                         <button class="btn-toggle" onclick="toggleTheme()">Toggle Light/Dark</button>
@@ -302,13 +330,13 @@
                     <a href="https://www.facebook.com/dmrsurvival" target="_blank">FaceBook</a> | 
                     <a href="https://github.com/DMRSurvival" target="_blank">GitHub</a><br />
                     
-                    <div style="margin: 8px 0;">
+                    <div style="margin: 5px 0;">
                         <a href="#" onclick="openPage('Contact', 'pages/contact.html'); return false;">Contact</a> | 
                         <a href="#" onclick="openPage('About', 'pages/about_dmr.html'); return false;">About</a> | 
                         <a href="#" onclick="openPage('Legal', 'pages/legal.html'); return false;">Legal</a>
                     </div>
                     
-                    <p>Copyright 2026<br>Dark Mountain Research</p>
+                    <p>Copyright 2026 Dark Mountain Research</p>
                 </footer>
 
             </aside>
@@ -325,6 +353,16 @@
     </div>
 
     <script>
+        // --- SITE SEARCH INDEX ---
+        // IMPORTANT: Add all your new pages here so the search bar can find them!
+        const siteIndex = [
+            { title: "Home", url: "pages/home.html", keywords: "home landing welcome main" },
+            { title: "Mission Statement", url: "pages/mission.html", keywords: "about mission goal archive" },
+            { title: "Contact", url: "pages/contact.html", keywords: "email phone reach contact" },
+            { title: "Log 001", url: "pages/log001.html", keywords: "research first entry" },
+            { title: "Log 002", url: "pages/log002.html", keywords: "meshtastic lora wireless mesh aredn batman" }
+        ];
+
         let tabs = [];
         let activeTabId = null;
         let fontSize = 16;
@@ -379,6 +417,7 @@
                     content = `<h1>Connection Error</h1><p>Could not load content. Ensure you are running this on a web server.</p>`;
                 }
             } else {
+                // Should basically never happen now that (+) is gone, unless called manually
                 content = `<h1>New Tab</h1><p>Select a file from the navigation tree.</p>`;
             }
 
@@ -454,7 +493,7 @@
                 generateToC();
             } else if (panelName === 'settings') {
                 document.getElementById('panel-settings').classList.add('active');
-                document.querySelector('[title="Settings"]').classList.add('active-tool');
+                document.querySelector('[title="Settings & Search"]').classList.add('active-tool');
             }
         }
 
@@ -474,6 +513,46 @@
             });
         }
 
+        // --- Search Logic ---
+        function performSearch() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            if (!query) return;
+
+            const results = siteIndex.filter(page => 
+                page.title.toLowerCase().includes(query) || 
+                page.keywords.toLowerCase().includes(query)
+            );
+
+            let resultsHTML = `<h1>Search Results: "${query}"</h1>`;
+            
+            if (results.length > 0) {
+                resultsHTML += `<p>Found ${results.length} matching page(s):</p>`;
+                results.forEach(res => {
+                    resultsHTML += `
+                        <div class="search-result">
+                            <a href="#" onclick="openPage('${res.title}', '${res.url}')">${res.title}</a>
+                            <div class="search-snippet">Found in: ${res.url}</div>
+                        </div>
+                    `;
+                });
+            } else {
+                resultsHTML += `<p>No matches found.</p>`;
+            }
+
+            // Manually inject a "Search Results" tab
+            const id = Date.now().toString();
+            tabs.push({ id, title: `Search: ${query}`, content: resultsHTML, url: null });
+            activateTab(id);
+            if(window.innerWidth <= 768) toggleSidebar();
+        }
+        
+        // Enter key in search box triggers search
+        document.getElementById('search-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') performSearch();
+        });
+
+
+        // --- Settings Logic ---
         function toggleTheme() {
             document.body.classList.toggle('light-mode');
             localStorage.setItem('dmr_theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
