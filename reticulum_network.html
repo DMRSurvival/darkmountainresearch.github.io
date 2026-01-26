@@ -1,0 +1,115 @@
+# DMR - The Reticulum Network
+
+### 1. Bottom Line Up Front (BLUF)
+
+**Reticulum** is not a single application or a specific type of radio; it is a complete, cryptography-based networking stack (software) designed to build unstoppable, secure, and resilient mesh networks. Unlike traditional networks that rely on IP addresses and central servers, Reticulum uses cryptographic keys to route data through any available medium—be it LoRa, WiFi, Ethernet, Packet Radio, or even a serial cable. It is "medium-agnostic," meaning it glues all these different connections together into a single, seamless network where data automatically finds the best path to its destination. It prioritizes privacy, offering end-to-end encryption and initiator anonymity by default.
+
+### 2. DMR Comments
+
+*(This section is intentionally left blank for your audio/written commentary.)*
+
+### 3. ELI5 (Explain Like I'm 5)
+
+Imagine you want to send a secret letter to your friend, Bob.
+
+In the "normal" world (like the Internet), you have to put Bob's home address on the envelope. The post office reads the address, knows exactly where Bob lives, and delivers it. If the road to Bob’s house is blocked, the mail truck stops. Also, everyone at the post office knows you are writing to Bob.
+
+**Reticulum** is different. Instead of an address, you just put a special mathematical puzzle on the envelope that only Bob can solve. You don't know *where* Bob is, and you don't care. You just hand the letter to a courier (a Reticulum node).
+
+* The courier doesn't know who you are.
+* The courier doesn't know who Bob is or where he is.
+* The courier just shouts, "Who can solve this puzzle?" to other couriers nearby.
+* Eventually, the letter finds a path through a chain of couriers until it reaches Bob.
+
+If Bob moves to a different house (changes from WiFi to LoRa), the letter still finds him because he is the only one who can solve the puzzle. It doesn't matter if the letter travels by truck, boat, or pigeon—Reticulum makes sure it gets there securely.
+
+### 4. Common Examples of Use
+
+* **Off-Grid Messaging:** A group of hikers using LoRa devices to text each other in a canyon without cell service.
+* **Community Mesh Networks:** A neighborhood setting up a static network to share local information and alerts independent of the internet.
+* **Cross-Medium Bridging:** A user on a PC (connected via Ethernet) sending a message to a user in the field (connected via LoRa). Reticulum routes the data from the PC, through a "gateway" node, out to the radio automatically.
+* **Secure Remote Administration:** Using `rnsh` (Reticulum Network Shell) to remotely control a Raspberry Pi or server securely without needing to configure SSH keys or firewalls, even over very slow radio links.
+* **Emergency Comms (EmComm):** Rapidly deploying a text-based communication network during a disaster when cell towers are down, mixing diverse hardware like old packet radios and new LoRa modules.
+
+### 5. How is it different?
+
+**Reticulum vs. Meshtastic**
+
+* **Meshtastic** is a "platform." It is firmware you flash onto a LoRa radio, and it works out of the box for group chatting. It is excellent for immediate, easy use but is generally limited to LoRa and its specific app ecosystem.
+* **Reticulum** is a "stack." It is the underlying software engine. It can run on the same LoRa radios, but also on your laptop, phone, or server. While Meshtastic is like a walkie-talkie system, Reticulum is like the entire Internet (TCP/IP) rebuilt for privacy and low bandwidth. Reticulum is more complex to set up but vastly more flexible (routing data over *any* cable or wave).
+
+**Reticulum vs. TCP/IP (The Internet)**
+
+* **Addressing:** The Internet uses IP addresses (Locations: "192.168.1.5"). Reticulum uses Destinations (Identities: Public Keys).
+* **Routing:** The Internet assumes fast, stable connections. Reticulum assumes links will be slow, broken, and intermittent.
+* **Security:** On the Internet, security (TLS/HTTPS) is a layer painted on top. In Reticulum, encryption is the canvas itself; you cannot send an unencrypted packet to a single destination.
+
+### 6. Road Map
+
+The technology is currently stable (v1.x), but development is active. Future milestones and trends include:
+
+* **C/Rust/Zig Ports:** Currently, the reference implementation is in Python. Porting the stack to lower-level languages (C or Rust) will allow it to run on much smaller, cheaper microcontrollers (like the ESP32) without needing a "Host" computer (like a Raspberry Pi) attached.
+* **Voice Support:** Protocols for carrying compressed digital voice over Reticulum are in development (Sideband already has early support).
+* **Protocol Formalization:** Solidifying the specification so other developers can build compatible versions independently.
+* **RNode Pro:** Development of more rugged, solar-ready hardware specifically designed for Reticulum nodes.
+
+### 7. Concerns
+
+* **Legal / Ham Radio Encryption:** In the United States (FCC) and many other jurisdictions, **encryption is prohibited** on Amateur Radio (Ham) frequencies. Since Reticulum encrypts *everything* by default and it cannot be turned off for routed packets, **using Reticulum on Ham bands (like 2m or 70cm) is illegal** for most users. Users must stick to ISM bands (915MHz LoRa, 2.4GHz WiFi) or Part 15 regulations.
+* **Complexity:** It is not "plug and play" like Meshtastic. It often requires knowledge of command-line interfaces, Python, and networking concepts.
+* **Niche Userbase:** The network effect is small. You likely won't find random Reticulum nodes to connect to unless you build the network yourself.
+* **Bandwidth:** While it is efficient, it is designed for low bandwidth. It is *not* a replacement for the internet. You won't be watching YouTube or browsing modern heavy websites over Reticulum.
+
+### 8. Deep Dive (The Geeky Stuff)
+
+**The Packet Structure**
+Reticulum is incredibly efficient. A standard packet overhead is only a few bytes.
+`[HEADER 2 bytes] [ADDRESSES 16/32 bytes] [CONTEXT 1 byte] [DATA 0-465 bytes]`
+
+* **No Source Address:** Notice the packet contains the *Destination* but not the *Sender*. This provides **Initiator Anonymity**. The receiver knows *someone* sent a message, but not who (unless the data inside proves it).
+
+**Cryptography (The Engine)**
+Reticulum uses modern, elliptic curve cryptography for everything.
+
+* **X25519 (ECDH):** Used for key exchange. When two nodes talk, they generate ephemeral (temporary) keys using Elliptic Curve Diffie-Hellman on Curve25519. This ensures **Forward Secrecy**—even if an attacker steals your keys later, they can't decrypt past messages.
+* **Ed25519:** Used for digital signatures. This proves a message came from a specific destination without revealing the private key.
+* **AES-256:** The actual data payload is encrypted using AES-256 (CBC mode) with keys derived from the ECDH exchange.
+
+**Routing (The "Transport")**
+Reticulum doesn't use a static map. It uses a "Path Discovery" mechanism involving **Announces**.
+
+1. **Announce:** A node broadcasts an "Announce" packet containing its Public Key.
+2. **Propagation:** "Transport Nodes" (routers) hear this. They remember: *"To get to Node A, I send data to Interface 2."* They verify the signature and re-broadcast the announce.
+3. **Hops:** As the announce travels, each node adds to the "Hop Count." When you want to send data to Node A, your local Reticulum instance looks at its table, finds the node with the fewest hops to A, and hands the packet to it.
+
+**Interfaces**
+Reticulum can run over:
+
+* **AutoInterface:** Ethernet/WiFi (UDP/TCP).
+* **SerialInterface:** USB radios, LoRa modules via UART.
+* **KISSInterface:** Old-school packet radio modems (TNCs).
+* **RNodeInterface:** Optimized raw LoRa interface using Mark Qvist's custom firmware.
+
+---
+
+### Associated Technology & Applications
+
+**Nomad Network**
+
+* **What is it?** A terminal-based (text-only) browser and messaging client.
+* **Function:** It allows you to browse "pages" (simplified websites) hosted on other Reticulum nodes. It works completely off-grid. It feels like the early Bulletin Board Systems (BBS) of the 90s but mesh-networked.
+
+**Sideband (formerly MeshChat)**
+
+* **What is it?** A graphical user interface (GUI) application for Android, Linux, and macOS.
+* **Function:** This is the "WhatsApp" of Reticulum. It allows for private chats, group chats, image transfers, and even basic file sharing. It uses the LXMF protocol.
+
+**LXMF (Lightweight Extensible Message Format)**
+
+* **What is it?** The protocol (standard) for sending messages.
+* **Function:** If Reticulum is the "road," LXMF is the "truck." It handles the formatting of messages so that Nomad Network, Sideband, and other apps can all talk to each other. It supports efficient routing of small data payloads.
+
+**RNode**
+
+* **What is it?** Hardware/Firmware.
+* **Function:** RNode is a piece of firmware you can flash onto cheap LoRa development boards (like the LilyGO T-Beam or Heltec V3). It turns the board into a generic "Network Interface Card" for LoRa. Unlike Meshtastic firmware which handles the chat logic *on the chip*, RNode is a "dumb pipe" that passes raw radio data to the Reticulum software running on your computer or phone.
